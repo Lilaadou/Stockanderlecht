@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KOOKI — Compartiment Anderlecht</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f4f4;--card:#fff;--card2:#fafafa;
+    --ink:#1a1a2e;--mut:#8a8a9a;--line:#e8e8ee;
+    --red:#d44218;--teal:#0c7b8a;--teal-l:#e6f4f6;--amber:#b3350f;--ok:#2e7d46;--no:#c0392b;
+    --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:720px;margin:0 auto;padding:16px 15px 60px}
+  .top{position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:14px}
+  .top::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--teal)}
+  .top .ttl{font-weight:800;font-size:16px}
+  .top .ttl small{display:block;font-weight:500;color:var(--mut);font-size:9.5px;font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;margin-top:1px}
+  .who{margin-left:auto;display:flex;align-items:center;gap:6px}
+  .who input{width:88px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;font-family:var(--mono);outline:none;background:var(--card2)}
+  .who .lbl{font-size:9.5px;font-family:var(--mono);color:var(--mut);text-transform:uppercase;letter-spacing:.1em}
+
+  .actions{display:flex;gap:8px;margin-bottom:14px}
+  .btn{flex:1;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit}
+  .btn-in{background:var(--teal);color:#fff}
+  .btn-out{background:var(--red);color:#fff}
+  .refresh{flex:0 0 auto;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:0 14px;cursor:pointer;font-size:16px}
+
+  .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+  @media(max-width:620px){.tiles{grid-template-columns:1fr 1fr}}
+  .tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .tile .k{font-family:var(--mono);font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.1em}
+  .tile .v{font-size:23px;font-weight:800;margin-top:3px;color:var(--teal)}
+  .tile .v small{font-size:12px;font-weight:600;color:var(--mut)}
+
+  .sec-t{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.1em;margin:4px 2px 10px}
+  .sav{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 15px;margin-bottom:9px}
+  .sav .sh{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+  .sav .nm{font-weight:800;font-size:16px}
+  .sav .ct{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--mut)}
+  .bacs{display:flex;flex-wrap:wrap;gap:8px}
+  .bac{border:1.5px solid var(--line);border-radius:10px;padding:8px 11px;min-width:120px;background:var(--card2)}
+  .bac .bl{font-weight:800;font-size:14px}
+  .bac .bc{font-family:var(--mono);font-size:10px;color:var(--mut);margin-top:1px}
+  .bac .brow{font-family:var(--mono);font-size:12px;font-weight:800;margin-top:4px}
+  .bac .brow small{color:var(--mut);font-weight:500}
+  .bar{height:5px;border-radius:4px;background:var(--line);margin-top:5px;overflow:hidden}
+  .bar>span{display:block;height:100%;background:var(--teal)}
+  .bac.entame{border-color:var(--amber);background:#fff6f1}
+  .etag{display:inline-block;font-size:9px;font-weight:800;color:#fff;background:var(--amber);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle}
+  .empty,.loading{text-align:center;color:var(--mut);background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:28px;font-weight:600}
+
+  .ov{position:fixed;inset:0;background:rgba(10,15,22,.5);z-index:50;display:none;align-items:flex-end;justify-content:center}
+  .ov.show{display:flex}
+  @media(min-width:600px){.ov{align-items:center;padding:20px}}
+  .modal{background:#fff;width:100%;max-width:480px;max-height:90vh;overflow:auto;border-radius:18px 18px 0 0}
+  @media(min-width:600px){.modal{border-radius:18px}}
+  .mh{position:sticky;top:0;background:#fff;padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .mh .mt{font-weight:800;font-size:17px}
+  .mh .x{margin-left:auto;background:var(--card2);border:1px solid var(--line);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px}
+  .mb{padding:16px 18px;min-height:60px}
+  .mrow{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .mrow:last-child{border-bottom:0}
+  .mrow .nm{font-weight:700}
+  .mrow .sub{font-family:var(--mono);font-size:11px;color:var(--mut)}
+  .mrow .right{margin-left:auto}
+  .stp{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:9px;overflow:hidden}
+  .stp button{width:34px;height:36px;border:none;background:#fff;font-size:18px;cursor:pointer;color:var(--ink)}
+  .stp input{width:48px;height:36px;border:none;border-left:1px solid var(--line);border-right:1px solid var(--line);text-align:center;font-family:var(--mono);font-weight:700;font-size:15px;outline:none;-moz-appearance:textfield}
+  .stp input::-webkit-outer-spin-button,.stp input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .chk{width:22px;height:22px;accent-color:var(--teal);cursor:pointer}
+  .mcta{position:sticky;bottom:0;background:#fff;padding:14px 18px;border-top:1px solid var(--line)}
+  .mcta button{width:100%;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:800;color:#fff;cursor:pointer;font-family:inherit}
+  .mcta .out{background:var(--red)} .mcta .in{background:var(--teal)}
+  .mcta button:disabled{opacity:.5;cursor:default}
+  .mnote{font-size:12px;color:var(--mut);margin:0 0 10px}
+
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:#101a24;color:#fff;padding:12px 20px;border-radius:12px;font-weight:700;font-size:14px;z-index:70;opacity:0;transition:opacity .2s;pointer-events:none;text-align:center;max-width:90%}
+  .toast.show{opacity:1}
+  .toast.ok{background:var(--ok)} .toast.err{background:var(--no)}
+  .foot{color:var(--mut);font-size:11px;text-align:center;margin-top:22px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="ttl">Compartiment Anderlecht<small>Stock magasin</small></div>
+    <div class="who"><span class="lbl">Qui&nbsp;?</span><input id="who" type="text" placeholder="Prénom" autocomplete="off" maxlength="14"></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-in" onclick="openEntree()">➕ Entrée (labo)</button>
+    <button class="btn btn-out" onclick="openSortie()">➖ Sortie du jour</button>
+    <button class="refresh" onclick="loadCompartiment(true)" title="Rafraîchir">↻</button>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+  <div class="sec-t">Bacs présents à Anderlecht · cookies restants par bac</div>
+  <div id="inv"><div class="loading">Chargement…</div></div>
+
+  <div class="foot">KOOKI · compartiment Anderlecht — relié à ta Google Sheet (onglet Bacs).<br>Entrée = transfert de bacs du labo vers Anderlecht · Sortie du jour = cookies piochés dans un bac.</div>
+</div>
+
+<div class="ov" id="ov">
+  <div class="modal">
+    <div class="mh"><span class="mt" id="m-title">—</span><button class="x" onclick="closeModal()">✕</button></div>
+    <div class="mb" id="m-body"></div>
+    <div class="mcta" id="m-cta"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== URL /exec — la MÊME que ton app principale ===== */
+var API = 'https://script.google.com/macros/s/AKfycbwyxONeaAkFB-G3C7ucJW1lwjouICyz06x85UCNIoDW8g0GWr4iYN8XfMYf_45VIOfADA/exec';
+
+var STATUT_COMP  = 'compartiment Anderlecht';
+var STATUT_FRIGO = 'en frigo';
+var STATUT_SORTI = 'sorti Anderlecht';
+var DESTINATION  = 'Anderlecht';
+var SAVEURS_ORDER = ['SUZZY','JACKY','BENNY','DAVY','MOLLY','WALLY','CHARLY','LENI','EMMY','WOODY','DANNY'];
+
+var comp = [];   // bacs du compartiment Anderlecht : {lot,saveur,lettre,cookies,restant}
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function savRank(s){ var i=SAVEURS_ORDER.indexOf(String(s).toUpperCase()); return i<0?99:i; }
+function num(x){ return Number(x)||0; }
+function restOf(b){ return num(b.restant!=null && b.restant!==''?b.restant:b.cookies); }
+function toast(msg,kind){ var t=document.getElementById('toast'); t.className='toast show'+(kind?(' '+kind):''); t.textContent=msg; clearTimeout(t._t); t._t=setTimeout(function(){t.className='toast';},2600); }
+function tile(k,v){ return '<div class="tile"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; }
+
+(function(){ try{ var w=localStorage.getItem('kooki_who'); if(w) document.getElementById('who').value=w; }catch(e){} })();
+document.getElementById('who').addEventListener('change',function(){ try{ localStorage.setItem('kooki_who', this.value.trim()); }catch(e){} });
+function who(){ return (document.getElementById('who').value||'').trim(); }
+
+function apiGet(action, params){
+  var url=API+'?action='+encodeURIComponent(action)+'&t='+Date.now();
+  if(params){ for(var k in params){ url+='&'+k+'='+encodeURIComponent(params[k]); } }
+  return fetch(url).then(function(r){ return r.json(); });
+}
+function apiPost(payload){ return fetch(API,{method:'POST',redirect:'follow',body:JSON.stringify(payload)}).then(function(r){ return r.json(); }); }
+
+/* ===== Chargement du compartiment ===== */
+function loadCompartiment(refresh){
+  var inv=document.getElementById('inv');
+  if(refresh) toast('Mise à jour…');
+  if(!comp.length) inv.innerHTML='<div class="loading">Chargement…</div>';
+  apiGet('getBacs',{statut:STATUT_COMP}).then(function(res){
+    comp = (Array.isArray(res)?res:[]).filter(function(b){ return restOf(b)>0; });
+    render();
+    if(refresh) toast('À jour','ok');
+  }).catch(function(){ inv.innerHTML='<div class="empty">Impossible de charger. Appuie sur ↻.<br><span style="font-size:11px">(Vérifie que le patch getBacs est déployé.)</span></div>'; });
+}
+
+function render(){
+  var list=comp.slice();
+  var totCk=list.reduce(function(s,b){return s+restOf(b);},0);
+  var entames=list.filter(function(b){return restOf(b)>0 && restOf(b)<num(b.cookies);}).length;
+  document.getElementById('tiles').innerHTML =
+    tile('Cookies restants', totCk) +
+    tile('Bacs entamés', entames+' <small>en cours</small>') +
+    tile('Bacs présents', list.length);
+  var inv=document.getElementById('inv');
+  if(!list.length){ inv.innerHTML='<div class="empty">Compartiment vide.<br>Fais une « Entrée (labo) » pour l\'alimenter.</div>'; return; }
+  var bySav={}; list.forEach(function(b){ var s=String(b.saveur).toUpperCase(); (bySav[s]=bySav[s]||[]).push(b); });
+  inv.innerHTML = Object.keys(bySav).sort(function(a,b){return savRank(a)-savRank(b);}).map(function(sv){
+    var bb=bySav[sv].sort(function(a,b){return String(a.lot).localeCompare(b.lot)||String(a.lettre).localeCompare(b.lettre);});
+    var ck=bb.reduce(function(s,x){return s+restOf(x);},0);
+    var cards=bb.map(function(b){
+      var r=restOf(b), o=num(b.cookies)||r, pct=Math.max(0,Math.min(100,Math.round(r/o*100))), entame=(r<o);
+      return '<div class="bac'+(entame?' entame':'')+'">'+
+        '<div class="bl">'+esc(b.lettre)+(entame?' <span class="etag">entamé</span>':'')+'</div>'+
+        '<div class="bc">'+esc(b.lot)+'</div>'+
+        '<div class="brow">'+r+' <small>/ '+o+' ck</small></div>'+
+        '<div class="bar"><span style="width:'+pct+'%"></span></div></div>';
+    }).join('');
+    return '<div class="sav"><div class="sh"><span class="nm">'+esc(sv)+'</span><span class="ct">'+bb.length+' bac'+(bb.length>1?'s':'')+' · '+ck+' ck</span></div><div class="bacs">'+cards+'</div></div>';
+  }).join('');
+}
+
+/* ===== ENTRÉE (labo → Anderlecht) ===== */
+function openEntree(){
+  document.getElementById('m-title').textContent='➕ Entrée vers Anderlecht';
+  document.getElementById('m-body').innerHTML='<div class="loading">Chargement des bacs du labo…</div>';
+  document.getElementById('m-cta').innerHTML='';
+  showModal();
+  apiGet('getBacs',{statut:STATUT_FRIGO}).then(function(res){
+    var labo=(Array.isArray(res)?res:[]).filter(function(b){ return restOf(b)>0; })
+      .sort(function(a,b){return savRank(a.saveur)-savRank(b.saveur)||String(a.lot).localeCompare(b.lot)||String(a.lettre).localeCompare(b.lettre);});
+    if(!labo.length){ document.getElementById('m-body').innerHTML='<div class="empty">Aucun bac « en frigo » au labo.</div>'; return; }
+    document.getElementById('m-body').innerHTML =
+      '<p class="mnote">Coche les bacs entiers à transférer du labo vers Anderlecht. Ils sortent du stock du labo (enregistré comme sortie) et entrent dans le compartiment.</p>'+
+      labo.map(function(b){
+        var d=JSON.stringify({lot:b.lot,lettre:b.lettre,saveur:b.saveur,ck:restOf(b)}).replace(/"/g,'&quot;');
+        return '<label class="mrow"><input type="checkbox" class="chk" data-b="'+d+'">'+
+          '<span><span class="nm">'+esc(b.saveur)+' · '+esc(b.lettre)+'</span><br><span class="sub">'+esc(b.lot)+' · '+restOf(b)+' ck</span></span></label>';
+      }).join('');
+    document.getElementById('m-cta').innerHTML='<button class="in" id="cta-in" onclick="doEntree()">Transférer les bacs cochés →</button>';
+  }).catch(function(){ document.getElementById('m-body').innerHTML='<div class="empty">Impossible de charger le labo.</div>'; });
+}
+function doEntree(){
+  var picks=checkedBacs(); if(!picks.length){ toast('Coche au moins un bac'); return; }
+  var btn=document.getElementById('cta-in'); btn.disabled=true; btn.textContent='Transfert en cours…';
+  var w=who();
+  // Pour chaque bac : 1) sortie labo (décrémente le stock) 2) bac → compartiment
+  var chain = picks.map(function(b){
+    return apiPost({ action:'sortie', saveur:b.saveur, destination:DESTINATION, lots:[{saveur:b.saveur, code:b.lot, big:b.ck, small:0}], boites:1, livreur:w })
+      .then(function(){ return apiPost({ action:'majStatutBac', lot:b.lot, lettre:b.lettre, restant:b.ck, statut:STATUT_COMP }); });
+  });
+  Promise.all(chain).then(function(){
+    closeModal(); loadCompartiment();
+    toast('✓ '+picks.length+' bac'+(picks.length>1?'s':'')+' transféré'+(picks.length>1?'s':'')+' vers Anderlecht','ok');
+  }).catch(function(){ btn.disabled=false; btn.textContent='Transférer les bacs cochés →'; toast('❌ Échec du transfert — réessaie','err'); });
+}
+
+/* ===== SORTIE DU JOUR (pioche de cookies) ===== */
+function openSortie(){
+  document.getElementById('m-title').textContent='➖ Sortie du jour';
+  if(!comp.length){ document.getElementById('m-body').innerHTML='<div class="empty">Compartiment vide.</div>'; document.getElementById('m-cta').innerHTML=''; showModal(); return; }
+  var list=comp.slice().sort(function(a,b){ var ea=(restOf(a)<num(a.cookies))?0:1, eb=(restOf(b)<num(b.cookies))?0:1; return ea-eb || savRank(a.saveur)-savRank(b.saveur); });
+  document.getElementById('m-body').innerHTML =
+    '<p class="mnote">Pour chaque bac où tu as pioché, entre le nombre de cookies pris aujourd\'hui. (Bacs entamés en haut — FIFO.)</p>'+
+    list.map(function(b,i){
+      var r=restOf(b), o=num(b.cookies)||r, entame=(r<o);
+      var d=JSON.stringify({lot:b.lot,lettre:b.lettre}).replace(/"/g,'&quot;');
+      return '<div class="mrow" data-b="'+d+'" data-rest="'+r+'"><span><span class="nm">'+esc(b.saveur)+' · '+esc(b.lettre)+(entame?' <span class="etag">entamé</span>':'')+'</span><br><span class="sub">'+esc(b.lot)+' · reste '+r+'/'+o+'</span></span>'+
+        '<span class="right"><span class="stp"><button onclick="bump('+i+',-1)">−</button><input id="q-'+i+'" type="number" min="0" max="'+r+'" value="0" data-max="'+r+'" oninput="clampQ(this)"><button onclick="bump('+i+',1)">+</button></span></span></div>';
+    }).join('');
+  document.getElementById('m-cta').innerHTML='<button class="out" id="cta-out" onclick="doSortie()">Enregistrer la sortie du jour →</button>';
+  showModal();
+}
+function clampQ(el){ var mx=parseInt(el.getAttribute('data-max'),10)||0; var n=parseInt(el.value,10)||0; if(n<0)n=0; if(n>mx)n=mx; if(String(n)!==el.value) el.value=n; }
+function bump(i,d){ var el=document.getElementById('q-'+i); if(!el) return; el.value=(parseInt(el.value,10)||0)+d; clampQ(el); }
+function doSortie(){
+  var rows=document.querySelectorAll('#m-body .mrow'); var ops=[], tot=0, vides=0;
+  Array.prototype.forEach.call(rows,function(row,i){
+    var el=document.getElementById('q-'+i); if(!el) return;
+    var n=parseInt(el.value,10)||0; if(n<=0) return;
+    var b; try{ b=JSON.parse(row.getAttribute('data-b').replace(/&quot;/g,'"')); }catch(e){ return; }
+    var rest=parseInt(row.getAttribute('data-rest'),10)||0;
+    var newRest=Math.max(0, rest-n); tot+=n; if(newRest===0) vides++;
+    ops.push({ action:'majStatutBac', lot:b.lot, lettre:b.lettre, restant:newRest, statut:(newRest>0?STATUT_COMP:STATUT_SORTI) });
+  });
+  if(!tot){ toast('Entre au moins 1 cookie'); return; }
+  var btn=document.getElementById('cta-out'); btn.disabled=true; btn.textContent='Enregistrement…';
+  Promise.all(ops.map(apiPost)).then(function(){
+    closeModal(); loadCompartiment();
+    toast('✓ '+tot+' cookies sortis'+(vides?(' · '+vides+' bac'+(vides>1?'s':'')+' vidé'+(vides>1?'s':'')):''),'ok');
+  }).catch(function(){ btn.disabled=false; btn.textContent='Enregistrer la sortie du jour →'; toast('❌ Échec — réessaie','err'); });
+}
+
+function checkedBacs(){ return Array.prototype.slice.call(document.querySelectorAll('#m-body .chk:checked')).map(function(c){ try{ return JSON.parse(c.getAttribute('data-b').replace(/&quot;/g,'"')); }catch(e){ return null; } }).filter(Boolean); }
+function showModal(){ document.getElementById('ov').classList.add('show'); }
+function closeModal(){ document.getElementById('ov').classList.remove('show'); }
+document.getElementById('ov').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+loadCompartiment();
+</script>
+</body>
+</html>
